@@ -1,20 +1,33 @@
--- local dap = require("dap")
--- dap.configurations.lua = {
--- 	{
--- 		type = "nlua",
--- 		request = "attach",
--- 		name = "Attach to running Neovim instance",
--- 	},
--- }
---
--- dap.adapters.nlua = function(callback, config)
--- 	callback({ type = "server", host = config.host or "127.0.0.1", port = config.port or 8086 })
--- end
---
-vim.keymap.set("n", "<leader>dL", function()
-	require("osv").launch({
-		port = 8086,
-		log = true, -- Enable logging
-		host = "127.0.0.1",
-	})
-end, { noremap = true })
+local dap = require("dap")
+dap.adapters["local-lua"] = {
+	type = "executable",
+	command = "node",
+	args = {
+		"/home/soeguet/repos/local-lua-debugger-vscode/extension/debugAdapter.js",
+	},
+	enrich_config = function(config, on_config)
+		if not config["extensionPath"] then
+			local c = vim.deepcopy(config)
+			-- 💀 If this is missing or wrong you'll see
+			-- "module 'lldebugger' not found" errors in the dap-repl when trying to launch a debug session
+			c.extensionPath = "/home/soeguet/repos/local-lua-debugger-vscode/"
+			on_config(c)
+		else
+			on_config(config)
+		end
+	end,
+}
+
+dap.configurations.lua = {
+	{
+		name = "Current file (local-lua-dbg, lua)",
+		type = "local-lua",
+		request = "launch",
+		cwd = "${workspaceFolder}",
+		program = {
+			lua = "lua5.1",
+			file = "${file}",
+		},
+		args = {},
+	},
+}
