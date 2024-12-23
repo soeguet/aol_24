@@ -1,7 +1,6 @@
 -- local file = io.open("/home/soeguet/code/lua/aol_24/day_02/example_02_01.txt", "r")
 local file = io.open("/home/soeguet/code/lua/aol_24/day_02/input_02_01.txt", "r")
 
-print("HI")
 if file == nil then
 	return
 end
